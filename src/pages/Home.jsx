@@ -1,22 +1,58 @@
 import React, { useEffect, useRef, useState } from "react";
+import * as d3 from "d3";
+import worldMapData from "./custom.geo.json"; // ë˜ëŠ” topojson ë³€í™˜ëœ GeoJSON
+
 
 const STAR_COUNT = 100;
 const STAR_RADIUS = 1.5;
 const CONSTELLATION_LINE_DISTANCE = 100;
+console.log("worldMapData", worldMapData);
 
-function createStars(width, height) {
+function createStarsFromGeo(width, height) {
+  const projection = d3.geoMercator()
+    .translate([width / 2, height / 2])         // í™”ë©´ ì •ì¤‘ì•™
+    .center([0, 15])                          // ì¤‘ì•™ì•„ë©”ë¦¬ì¹´ ê¸°ì¤€ ìœ„ì¹˜ (ì˜ˆ: ì½”ìŠ¤íƒ€ë¦¬ì¹´ ì¤‘ì‹¬)
+    .scale(width /6);                        // í™•ëŒ€ ë¹„ìœ¨ ì ì ˆíˆ ì¡°ì •
+  const path = d3.geoPath().projection(projection);
+
   let stars = [];
-  for (let i = 0; i < STAR_COUNT; i++) {
-    stars.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      radius: Math.random() * STAR_RADIUS + 0.5,
-      twinkleSpeed: 0.01 + Math.random() * 0.02,
-      opacity: Math.random(),
-    });
-  }
+
+  worldMapData.features.forEach((feature) => {
+    const coordinates = feature.geometry.coordinates;
+
+    if (feature.geometry.type === "Polygon") {
+     
+      coordinates[0].filter((_, i) => i % 10 === 0).forEach(([lon, lat]) => {
+        const [x, y] = projection([lon, lat]);
+        stars.push({
+          x,
+          y,
+          radius: Math.random() * STAR_RADIUS + 0.5,
+          twinkleSpeed: 0.01 + Math.random() * 0.02,
+          opacity: Math.random()*0.4+0.6,
+        });
+      });
+    }
+
+    if (feature.geometry.type === "MultiPolygon") {
+      coordinates.forEach((polygon) => {
+        polygon[0].filter((_, i) => i  === 0).forEach(([lon, lat]) => {
+          const [x, y] = projection([lon, lat]);
+          stars.push({
+            x,
+            y,
+            radius: Math.random() * STAR_RADIUS + 0.5,
+            twinkleSpeed: 0.01 + Math.random() * 0.02,
+            opacity: Math.random(),
+          });
+        });
+      });
+    }
+  });
+
   return stars;
 }
+
 
 export default function Home({ setIsLoggedIn }) {
   const canvasRef = useRef(null);
@@ -29,7 +65,7 @@ export default function Home({ setIsLoggedIn }) {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      setStars(createStars(width, height));
+      setStars(createStarsFromGeo(width, height));
       if (canvasRef.current) {
         canvasRef.current.width = width;
         canvasRef.current.height = height;
@@ -59,9 +95,9 @@ export default function Home({ setIsLoggedIn }) {
 
       ctx.clearRect(0, 0, width, height);
 
-      // º°ÀÚ¸® ¼± ±×¸®±â
+      // ë³„ìë¦¬ ì„  ê·¸ë¦¬ê¸°
       ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-      ctx.lineWidth = 0.8;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       for (let i = 0; i < stars.length; i++) {
         for (let j = i + 1; j < stars.length; j++) {
@@ -74,28 +110,36 @@ export default function Home({ setIsLoggedIn }) {
           }
         }
       }
-      // ¸¶¿ì½º ±ÙÃ³ º°ÀÚ¸® ¼± ±×¸®±â
+      // ë§ˆìš°ìŠ¤ ê·¼ì²˜ ë³„ìë¦¬ ì„  ê·¸ë¦¬ê¸°
       stars.forEach((star) => {
         const dx = star.x - mousePos.x;
         const dy = star.y - mousePos.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < CONSTELLATION_LINE_DISTANCE) {
-          ctx.moveTo(star.x, star.y);
-          ctx.lineTo(mousePos.x, mousePos.y);
-        }
+
+        
+         if (dist < CONSTELLATION_LINE_DISTANCE) {
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / CONSTELLATION_LINE_DISTANCE})`; // ê±°ë¦¬ ê¸°ë°˜ ë°ê¸°
+    ctx.lineWidth = 1.5; // â­ ë” êµµê²Œ
+    ctx.shadowColor = "white";
+    ctx.shadowBlur = 12; // â­ glow íš¨ê³¼ ì¶”ê°€
+    ctx.moveTo(star.x, star.y);
+    ctx.lineTo(mousePos.x, mousePos.y);
+    ctx.stroke();
+  }
       });
       ctx.stroke();
 
-      // º° ¹İÂ¦ÀÓ ±×¸®±â
+      // ë³„ ë°˜ì§ì„ ê·¸ë¦¬ê¸°
       stars.forEach((star) => {
         star.opacity += star.twinkleSpeed;
-        if (star.opacity >= 1 || star.opacity <= 0.3) {
+        if (star.opacity >= 1 || star.opacity <= 0.6) {
           star.twinkleSpeed = -star.twinkleSpeed;
         }
         ctx.beginPath();
         ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
         ctx.shadowColor = "white";
-        ctx.shadowBlur = 4;
+        ctx.shadowBlur = 15;
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -132,14 +176,14 @@ export default function Home({ setIsLoggedIn }) {
     setStars(newStars);
   }, [scrollY]);
 
-  // ·Î±×ÀÎ Ã³¸® (ÀÓ½Ã)
+  // ë¡œê·¸ì¸ ì²˜ë¦¬ (ì„ì‹œ)
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
   return (
     <>
-      {/* ¹è°æ ¿ìÁÖ ÀÌ¹ÌÁö */}
+      {/* ë°°ê²½ ìš°ì£¼ ì´ë¯¸ì§€ */}
       <div
         style={{
           position: "fixed",
@@ -150,7 +194,7 @@ export default function Home({ setIsLoggedIn }) {
         }}
       />
 
-      {/* Äµ¹ö½º */}
+      {/* ìº”ë²„ìŠ¤ */}
       <canvas
         ref={canvasRef}
         style={{ display: "block", position: "fixed", inset: 0, zIndex: -1 }}
@@ -162,7 +206,7 @@ export default function Home({ setIsLoggedIn }) {
         onClick={handleCanvasClick}
       />
 
-      {/* ·Î±×ÀÎ/È¸¿ø°¡ÀÔ */}
+      {/* ë¡œê·¸ì¸/íšŒì›ê°€ì… */}
       <div
         style={{
           position: "fixed",
@@ -178,11 +222,11 @@ export default function Home({ setIsLoggedIn }) {
           gap: "15px",
         }}
       >
-        <span onClick={handleLogin}>·Î±×ÀÎ</span>
-        <span>È¸¿ø°¡ÀÔ</span>
+        <span onClick={handleLogin}>ë¡œê·¸ì¸</span>
+        <span>íšŒì›ê°€ì…</span>
       </div>
 
-      {/* ¼±ÅÃµÈ º° Ä«µå */}
+      {/* ì„ íƒëœ ë³„ ì¹´ë“œ */}
       {selectedStar && (
         <div
           style={{
@@ -202,16 +246,16 @@ export default function Home({ setIsLoggedIn }) {
           }}
           onClick={closeCard}
         >
-          <h2>Ãß¾ïÄ«µåµå</h2>
+          <h2>ì¶”ì–µì¹´ë“œ</h2>
           <p>
-            ÀÌ º°Àº x: {Math.round(selectedStar.x)}, y: {Math.round(selectedStar.y)} À§Ä¡¿¡ ÀÖ½À´Ï´Ù.
+            ì´ ë³„ì€ x: {Math.round(selectedStar.x)}, y: {Math.round(selectedStar.y)} ìœ„ì¹˜ì— ìˆìŠµë‹ˆë‹¤.
           </p>
-          <p>¿©±â¿¡ Ãß¾ï¿¡ ´ëÇÑ »ó¼¼ ³»¿ëÀ» Ãß°¡ÇÏ¼¼¿ä.</p>
-          <p>(Å¬¸¯ ½Ã ´İ±â)</p>
+          <p>ì—¬ê¸°ì— ì¶”ì–µì— ëŒ€í•œ ìƒì„¸ ë‚´ìš©ì„ ì¶”ê°€í•˜ì„¸ìš”.</p>
+          <p>(í´ë¦­ ì‹œ ë‹«ê¸°)</p>
         </div>
       )}
 
-      {/* ½½¶óÀÌµå¾÷ ¾Ö´Ï¸ŞÀÌ¼Ç ½ºÅ¸ÀÏ */}
+      {/* ìŠ¬ë¼ì´ë“œì—… ì• ë‹ˆë©”ì´ì…˜ ìŠ¤íƒ€ì¼ */}
       <style>{`
         @keyframes slideUp {
           0% {
