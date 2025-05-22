@@ -18,13 +18,38 @@ const GlobeViewer = () => {
       <circle fill="black" cx="14" cy="14" r="7"></circle>
     </svg>`;
 
-    const N = 30;
-    const gData = [...Array(N).keys()].map(() => ({
-      lat: (Math.random() - 0.5) * 180,
-      lng: (Math.random() - 0.5) * 360,
-      size: 7 + Math.random() * 30,
-      color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)],
-    }));
+    // const N = 30;
+    // const gData = [...Array(N).keys()].map(() => ({   //랜덤 마커 생성
+    //   lat: (Math.random() - 0.5) * 180,
+    //   lng: (Math.random() - 0.5) * 360,
+    //   size: 7 + Math.random() * 30,
+    //   color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)],
+    // }));
+    //
+    //  ? 수동 마커 3개 예시
+const gData = [
+  {
+    lat: 37.5665, // 서울
+    lng: 126.9780,
+    size: 20,
+    color: 'red',
+    id: 'marker-1'
+  },
+  {
+    lat: 48.8566, // 파리
+    lng: 2.3522,
+    size: 20,
+    color: 'blue',
+    id: 'marker-2'
+  },
+  {
+    lat: 34.0522, // LA
+    lng: -118.2437,
+    size: 20,
+    color: 'green',
+    id: 'marker-3'
+  }
+];
 
     const globe = new ThreeGlobe()
       .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
@@ -97,6 +122,7 @@ const GlobeViewer = () => {
     };
   }, []);
 
+  
   return (
     <div ref={globeRef} style={{ width: '100vw', height: '100vh', position: 'relative' }} />
   );
