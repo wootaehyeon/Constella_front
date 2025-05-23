@@ -197,7 +197,7 @@ export default function Home({ setIsLoggedIn }) {
         <div style={{ position: "fixed", top: 70, right: 20, width: 280, padding: "20px", backgroundColor: "rgba(0, 0, 30, 0.9)", color: "white", borderRadius: "12px", boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)", zIndex: 99 }}>
           <h3 style={{ marginTop: 0 }}>로그인</h3>
           <label htmlFor="login-id" style={{ fontSize: 14 }}>아이디</label>
-          <input id="login-id" type="text" placeholder="이메일 또는 사용자명" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
+          <input id="login-id" type="text" placeholder=" 사용자명" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
           <label htmlFor="login-password" style={{ fontSize: 14 }}>비밀번호</label>
           <input id="login-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
           <button onClick={handleLogin} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#1e90ff", color: "white", fontWeight: "bold", cursor: "pointer" }}>로그인</button>
