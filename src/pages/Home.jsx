@@ -166,13 +166,73 @@ export default function Home({ setIsLoggedIn }) {
     setStars(newStars);
   }, [scrollY]);
 
-  const handleLogin = () => {
-    const id = document.getElementById("login-id").value;
-    const pw = document.getElementById("login-password").value;
-    console.log("로그인 정보:", { id, pw });
-    setIsLoggedIn(true);
-    navigate("/globe");
-  };
+ const handleLogin = async () => {
+  const id = document.getElementById("login-id").value;
+  const pw = document.getElementById("login-password").value;
+
+  try {
+    const response = await fetch("http://localhost:8080/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: id,
+        password: pw,
+      }),
+    });
+
+    if (response.status === 201) {
+      const data = await response.json();
+      console.log("로그인 성공:", data);
+
+      // JWT 토큰이 있다면 저장 (명세서에는 없지만 추가 가능)
+      // localStorage.setItem("token", data.token);
+
+      setIsLoggedIn(true);
+      alert(data.message); // "로그인 성공"
+      navigate("/globe");
+    } else {
+      const errorData = await response.json();
+      console.error("로그인 실패:", errorData);
+      alert("로그인 실패: " + (errorData.message || "알 수 없는 오류"));
+    }
+  } catch (error) {
+    console.error("에러 발생:", error);
+    alert("서버 오류 발생");
+  }
+};
+const handleRegister = async () => {
+  const id = document.getElementById("register-id").value;
+  const pw = document.getElementById("register-password").value;
+
+  try {
+    const response = await fetch("http://localhost:8080/api/users/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: id,
+        password: pw,
+      }),
+    });
+
+    if (response.status === 200) {
+      const data = await response.json();
+      console.log("회원가입 성공:", data);
+      alert(data.message); // "회원가입 성공"
+      setShowRegisterBox(false);
+    } else {
+      const errorData = await response.json();
+      console.error("회원가입 실패:", errorData);
+      alert("회원가입 실패: " + (errorData.message || "알 수 없는 오류"));
+    }
+  } catch (error) {
+    console.error("에러 발생:", error);
+    alert("서버 오류 발생");
+  }
+};
 
   return (
     <>
@@ -211,7 +271,7 @@ export default function Home({ setIsLoggedIn }) {
           <input id="register-id" type="text" placeholder="아이디 입력" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
           <label htmlFor="register-password" style={{ fontSize: 14 }}>비밀번호</label>
           <input id="register-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
-          <button style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#32cd32", color: "white", fontWeight: "bold", cursor: "pointer" }}>회원가입</button>
+          <button onClick={handleRegister} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#32cd32", color: "white", fontWeight: "bold", cursor: "pointer" }}>회원가입</button>
         </div>
       )}
 
