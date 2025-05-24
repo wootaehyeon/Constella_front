@@ -261,6 +261,9 @@ const handleRegister = async () => {
           <label htmlFor="login-password" style={{ fontSize: 14 }}>비밀번호</label>
           <input id="login-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
           <button onClick={handleLogin} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#1e90ff", color: "white", fontWeight: "bold", cursor: "pointer" }}>로그인</button>
+          <button onClick={() => navigate("/GlobeViewer")} style={{ position: 'fixed', bottom: '20px', right: '20px', padding: '10px', background: 'lime', border: 'none', borderRadius: '6px', color: 'black', cursor: 'pointer' }}>
+  디버그용 바로가기
+</button>
         </div>
       )}
 

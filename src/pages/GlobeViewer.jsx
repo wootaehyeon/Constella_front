@@ -3,53 +3,45 @@ import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { useNavigate } from 'react-router-dom';
 
 const GlobeViewer = () => {
   const globeRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const container = globeRef.current; // ref °ªÀ» º¯¼ö¿¡ º¹»ç
+    const container = globeRef.current;
 
     if (!container) return;
 
-    // ¸¶Ä¿ SVG
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
       <circle fill="black" cx="14" cy="14" r="7"></circle>
     </svg>`;
 
-    // const N = 30;
-    // const gData = [...Array(N).keys()].map(() => ({   //·£´ı ¸¶Ä¿ »ı¼º
-    //   lat: (Math.random() - 0.5) * 180,
-    //   lng: (Math.random() - 0.5) * 360,
-    //   size: 7 + Math.random() * 30,
-    //   color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)],
-    // }));
-    //
-    //  ? ¼öµ¿ ¸¶Ä¿ 3°³ ¿¹½Ã
-const gData = [
-  {
-    lat: 37.5665, // ¼­¿ï
-    lng: 126.9780,
-    size: 20,
-    color: 'red',
-    id: 'marker-1'
-  },
-  {
-    lat: 48.8566, // ÆÄ¸®
-    lng: 2.3522,
-    size: 20,
-    color: 'blue',
-    id: 'marker-2'
-  },
-  {
-    lat: 34.0522, // LA
-    lng: -118.2437,
-    size: 20,
-    color: 'green',
-    id: 'marker-3'
-  }
-];
+    const gData = [
+      {
+        lat: 37.5665,
+        lng: 126.9780,
+        size: 20,
+        color: 'red',
+        id: 'marker-1'
+      },
+      {
+        lat: 48.8566,
+        lng: 2.3522,
+        size: 20,
+        color: 'blue',
+        id: 'marker-2'
+      },
+      {
+        lat: 34.0522,
+        lng: -118.2437,
+        size: 20,
+        color: 'green',
+        id: 'marker-3'
+      }
+    ];
 
     const globe = new ThreeGlobe()
       .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
@@ -122,9 +114,29 @@ const gData = [
     };
   }, []);
 
-  
   return (
-    <div ref={globeRef} style={{ width: '100vw', height: '100vh', position: 'relative' }} />
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+      <div ref={globeRef} style={{ width: '100vw', height: '100vh' }} />
+      <button
+        onClick={() => navigate('/mypage')}
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          padding: '12px 18px',
+          background: '#32cd32',
+          border: 'none',
+          borderRadius: '8px',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          zIndex: 10
+        }}
+      >
+        ë§ˆì´í˜ì´ì§€ ì´ë™
+      </button>
+    </div>
   );
 };
 
