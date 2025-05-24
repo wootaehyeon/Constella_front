@@ -3,70 +3,50 @@ import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { useNavigate } from 'react-router-dom';
 
 const GlobeViewer = () => {
   const globeRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const container = globeRef.current; // ref ���� ������ ����
-
+    const container = globeRef.current;
     if (!container) return;
 
-    // ��Ŀ SVG
+    // 국가별 핀 표시 SVG
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
       <circle fill="black" cx="14" cy="14" r="7"></circle>
     </svg>`;
 
-    // const N = 30;
-    // const gData = [...Array(N).keys()].map(() => ({   //���� ��Ŀ ����
-    //   lat: (Math.random() - 0.5) * 180,
-    //   lng: (Math.random() - 0.5) * 360,
-    //   size: 7 + Math.random() * 30,
-    //   color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)],
-    // }));
-    //
-    //  ? ���� ��Ŀ 3�� ����
-const gData = [
-  {
-    lat: 37.5665, // ����
-    lng: 126.9780,
-    size: 20,
-    color: 'red',
-    id: 'marker-1'
-  },
-  {
-    lat: 48.8566, // �ĸ�
-    lng: 2.3522,
-    size: 20,
-    color: 'blue',
-    id: 'marker-2'
-  },
-  {
-    lat: 34.0522, // LA
-    lng: -118.2437,
-    size: 20,
-    color: 'green',
-    id: 'marker-3'
-  }
-];
+    // 임시 데이터: 사용자 등록된 국가만 핀 표시
+    const gData = [
+      { lat: 37.5665, lng: 126.9780, size: 20, color: 'red', id: 'KOR' },
+      { lat: 48.8566, lng: 2.3522, size: 20, color: 'blue', id: 'FRA' },
+      { lat: 34.0522, lng: -118.2437, size: 20, color: 'green', id: 'USA' },
+    ];
 
+    // Globe 객체 생성
     const globe = new ThreeGlobe()
-      .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
-      .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+      .globeImageUrl('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
+      .bumpImageUrl('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+
+
       .htmlElementsData(gData)
       .htmlElement(d => {
         const el = document.createElement('div');
         el.innerHTML = markerSvg;
         el.style.color = d.color;
         el.style.width = `${d.size}px`;
-        el.style.transition = 'opacity 250ms';
+        el.style.cursor = 'pointer';
+        el.onclick = () => navigate(`/entries?country=${d.id}`); // 핀 클릭 시 해당 국가 카드 리스트로 이동
         return el;
       })
       .htmlElementVisibilityModifier((el, isVisible) => {
         el.style.opacity = isVisible ? 1 : 0;
       });
 
+    // Three.js 기본 설정
     const scene = new THREE.Scene();
     scene.add(globe);
     scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
@@ -90,6 +70,7 @@ const gData = [
       container.appendChild(renderer.domElement);
     });
 
+    // 마우스 조작을 위한 컨트롤 설정
     const controls = new TrackballControls(camera, webglRenderer.domElement);
     controls.minDistance = 101;
     controls.rotateSpeed = 5;
@@ -98,6 +79,7 @@ const gData = [
     globe.setPointOfView(camera);
     controls.addEventListener('change', () => globe.setPointOfView(camera));
 
+    // 애니메이션 루프
     const animate = () => {
       controls.update();
       webglRenderer.render(scene, camera);
@@ -106,6 +88,7 @@ const gData = [
     };
     animate();
 
+    // 창 크기 조절 대응
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -114,15 +97,15 @@ const gData = [
     };
     window.addEventListener('resize', handleResize);
 
+    // 컴포넌트 언마운트 시 정리
     return () => {
       window.removeEventListener('resize', handleResize);
       if (container) {
         container.innerHTML = '';
       }
     };
-  }, []);
+  }, [navigate]);
 
-  
   return (
     <div ref={globeRef} style={{ width: '100vw', height: '100vh', position: 'relative' }} />
   );

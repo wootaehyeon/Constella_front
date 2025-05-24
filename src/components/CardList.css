@@ -1,0 +1,17 @@
+.card-list-wrapper {
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
