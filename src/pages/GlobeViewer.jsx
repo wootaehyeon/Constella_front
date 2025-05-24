@@ -11,19 +11,23 @@ const GlobeViewer = () => {
 
   useEffect(() => {
     const container = globeRef.current;
+
     if (!container) return;
 
     // 국가별 핀 표시 SVG
+
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
       <circle fill="black" cx="14" cy="14" r="7"></circle>
     </svg>`;
+
 
     // 임시 데이터: 사용자 등록된 국가만 핀 표시
     const gData = [
       { lat: 37.5665, lng: 126.9780, size: 20, color: 'red', id: 'KOR' },
       { lat: 48.8566, lng: 2.3522, size: 20, color: 'blue', id: 'FRA' },
       { lat: 34.0522, lng: -118.2437, size: 20, color: 'green', id: 'USA' },
+
     ];
 
     // Globe 객체 생성
@@ -107,7 +111,28 @@ const GlobeViewer = () => {
   }, [navigate]);
 
   return (
-    <div ref={globeRef} style={{ width: '100vw', height: '100vh', position: 'relative' }} />
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+      <div ref={globeRef} style={{ width: '100vw', height: '100vh' }} />
+      <button
+        onClick={() => navigate('/mypage')}
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          padding: '12px 18px',
+          background: '#32cd32',
+          border: 'none',
+          borderRadius: '8px',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          zIndex: 10
+        }}
+      >
+        마이페이지 이동
+      </button>
+    </div>
   );
 };
 
