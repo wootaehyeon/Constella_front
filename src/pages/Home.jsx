@@ -182,7 +182,7 @@ export default function Home({ setIsLoggedIn }) {
       }),
     });
 
-    if (response.status === 201) {
+    if (response.ok) {
       const data = await response.json();
       console.log("로그인 성공:", data);
 
@@ -190,6 +190,7 @@ export default function Home({ setIsLoggedIn }) {
       // localStorage.setItem("token", data.token);
 
       setIsLoggedIn(true);
+      localStorage.setItem("isLoggedIn", "true");
       alert(data.message); // "로그인 성공"
       navigate("/globe");
     } else {
