@@ -1,63 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const CardDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [entry, setEntry] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [card, setCard] = useState(null);
 
   useEffect(() => {
-    const fetchEntry = async () => {
-      try {
-        const res = await axios.get(`/api/diary-entries/${id}`);
-        setEntry(res.data);
-      } catch (err) {
-        setError('일기 데이터를 불러오는 데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEntry();
+    fetch(`http://localhost:8080/api/cards/${id}`)
+      .then(res => res.json())
+      .then(data => setCard(data))
+      .catch(err => console.error(err));
   }, [id]);
 
-  if (loading) return <div className="p-4 text-center">로딩 중...</div>;
-  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
-  if (!entry) return <div className="p-4 text-center text-gray-500">일기를 찾을 수 없습니다.</div>;
+  if (!card) return <div style={{ color: "white" }}>로딩 중...</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <button
-        className="mb-4 text-blue-500 hover:underline"
-        onClick={() => navigate(-1)}
-      >
-        ← 돌아가기
-      </button>
-
-      <h1 className="text-3xl font-bold mb-2">{entry.title}</h1>
-      <p className="text-gray-500 mb-6">{entry.date}</p>
-
-      <div className="space-y-4 mb-6">
-        {entry.contents.map((content, index) => (
-          <p key={index} className="text-lg text-gray-800">
-            {content}
-          </p>
-        ))}
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.85)",
+      color: "white",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      animation: "zoomIn 0.3s ease"
+    }}>
+      <div style={{
+        width: 500,
+        background: "#222",
+        padding: 30,
+        borderRadius: 15,
+        boxShadow: "0 0 20px rgba(255,255,255,0.2)"
+      }}>
+        <h2>{card.title}</h2>
+        <p>{card.content}</p>
+        <p><strong>국가:</strong> {card.country}</p>
+        {card.imageUrl && <img src={card.imageUrl} style={{ maxWidth: "100%", marginTop: 20 }} />}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {entry.images.map((img, index) => (
-          <img
-            key={index}
-            src={img.url}
-            alt={`entry-${index}`}
-            className="w-full h-auto rounded-lg shadow"
-          />
-        ))}
-      </div>
+      <style>{`
+        @keyframes zoomIn {
+          from { transform: scale(0.6); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };

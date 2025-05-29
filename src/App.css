@@ -36,3 +36,57 @@
     transform: rotate(360deg);
   }
 }
+
+/* 복붙용: Starfield 애니메이션 */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+}
+
+.stars {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  box-shadow:
+    1000px 200px white,
+    400px 400px white,
+    600px 800px white,
+    800px 100px white,
+    1200px 600px white,
+    1400px 900px white;
+  animation: moveStars 200s linear infinite;
+}
+
+.stars::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  box-shadow:
+    300px 500px white,
+    700px 300px white,
+    900px 200px white,
+    1100px 700px white,
+    1300px 400px white,
+    1500px 800px white;
+}
+
+@keyframes moveStars {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100vh); }
+}
+
+.star-overlay {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
