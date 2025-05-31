@@ -26,6 +26,7 @@ const countryNameMap = {
 const CardOverlay = ({ country, onClose }) => {
   const [cards, setCards] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
 
   const refetchCards = () => {
     fetch(`http://localhost:8080/api/diaries/merge/${country}`)
@@ -42,6 +43,64 @@ const CardOverlay = ({ country, onClose }) => {
     setShowCreate(false);
     refetchCards();
   };
+
+  if (selectedCard) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 15,
+          background: "rgba(0, 0, 0, 0.85)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          padding: 40,
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            background: "#111",
+            borderRadius: 20,
+            padding: 30,
+            maxWidth: 600,
+            width: "90%",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
+          }}
+        >
+          <button
+            onClick={() => setSelectedCard(null)}
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 15,
+              background: "transparent",
+              color: "white",
+              fontSize: 20,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            ✕
+          </button>
+          <h2>{selectedCard.mergedTitle}</h2>
+          <p>{selectedCard.mergedContent}</p>
+          {selectedCard.imageUrls?.length > 0 && (
+            <img
+              src={`http://localhost:8080${selectedCard.imageUrls[0]}`}
+              alt="thumbnail"
+              style={{ width: "100%", marginTop: 20, borderRadius: 8 }}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -106,6 +165,7 @@ const CardOverlay = ({ country, onClose }) => {
           {cards.map((card) => (
             <SwiperSlide key={card.id}>
               <div
+                onClick={() => setSelectedCard(card)}
                 style={{
                   height: 240,
                   padding: 20,
@@ -119,15 +179,24 @@ const CardOverlay = ({ country, onClose }) => {
                   justifyContent: "center",
                 }}
               >
+                <p style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}>
+                  {card.date ? new Date(card.date).toLocaleDateString("ko-KR") : "날짜 없음"}
+                </p>
                 <h4>{card.mergedTitle}</h4>
                 <p style={{ fontSize: 12, color: "#ccc" }}>
                   {card.mergedContent.slice(0, 60)}...
                 </p>
+                {card.imageUrls?.[0] && (
+                  <img
+                    src={`http://localhost:8080${card.imageUrls[0]}`}
+                    alt="thumbnail"
+                    style={{ width: "100%", height: 80, objectFit: "cover", marginTop: 10, borderRadius: 8 }}
+                  />
+                )}
               </div>
             </SwiperSlide>
           ))}
 
-          {/* Always show + card */}
           <SwiperSlide>
             <div
               onClick={() => setShowCreate(true)}
