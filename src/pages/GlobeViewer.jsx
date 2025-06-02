@@ -4,6 +4,7 @@ import ThreeGlobe from "three-globe";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
 import CardOverlay from "../components/CardOverlay";
+import StatsModal from "../components/StatsModal"; // 추가
 
 const countryNameMap = {
   KOR: "대한민국", USA: "미국", FRA: "프랑스", JPN: "일본",
@@ -30,6 +31,18 @@ const gData = [
 const GlobeViewer = () => {
   const globeRef = useRef(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [showStats, setShowStats] = useState(false);
+  const [countryStats, setCountryStats] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/diaries/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCountryStats(data);
+        else setCountryStats([]);
+      })
+      .catch(() => setCountryStats([]));
+  }, []);
 
   useEffect(() => {
     const container = globeRef.current;
@@ -47,10 +60,10 @@ const GlobeViewer = () => {
   </div>
 `;
 
-
-
     const globe = new ThreeGlobe()
-      .globeImageUrl("https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=BlueMarble_ShadedRelief_Bathymetry&FORMAT=image/jpeg&TRANSPARENT=FALSE&HEIGHT=1024&WIDTH=2048&CRS=EPSG:4326&BBOX=-90,-180,90,180&STYLES=")
+      .globeImageUrl(
+        "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=BlueMarble_ShadedRelief_Bathymetry&FORMAT=image/jpeg&TRANSPARENT=FALSE&HEIGHT=1024&WIDTH=2048&CRS=EPSG:4326&BBOX=-90,-180,90,180&STYLES="
+      )
       .htmlElementsData(gData)
       .htmlElement((d) => {
         const el = document.createElement("div");
@@ -65,7 +78,6 @@ const GlobeViewer = () => {
         el.style.opacity = isVisible ? 1 : 0;
       });
 
-    // === Three.js 기본 설정 ===
     const scene = new THREE.Scene();
     scene.add(globe);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
@@ -79,53 +91,36 @@ const GlobeViewer = () => {
     camera.position.z = 500;
 
     const webglRenderer = new THREE.WebGLRenderer({ alpha: true });
-    webglRenderer.setSize(window.innerWidth, window.innerHeight);
-    webglRenderer.setClearColor(0x000000, 1); // 우주 배경색
+    webglRenderer.setClearColor(0x000000, 0);
 
     const labelRenderer = new CSS2DRenderer();
+    webglRenderer.setSize(window.innerWidth, window.innerHeight);
     labelRenderer.setSize(window.innerWidth, window.innerHeight);
 
     webglRenderer.domElement.style.position = "absolute";
     labelRenderer.domElement.style.position = "absolute";
-    labelRenderer.domElement.style.top = "0px";
+    labelRenderer.domElement.style.top = "0";
     labelRenderer.domElement.style.pointerEvents = "none";
 
     container.appendChild(webglRenderer.domElement);
     container.appendChild(labelRenderer.domElement);
 
-    // === 컨트롤 ===
     const controls = new TrackballControls(camera, webglRenderer.domElement);
     controls.minDistance = 101;
     controls.rotateSpeed = 5;
     controls.zoomSpeed = 0.8;
+
     globe.setPointOfView(camera);
     controls.addEventListener("change", () => globe.setPointOfView(camera));
 
-    // === 별 파티클 생성 ===
-    const starsGeometry = new THREE.BufferGeometry();
-    const starCount = 2000;
-    const positions = new Float32Array(starCount * 3);
-
-    for (let i = 0; i < starCount * 3; i++) {
-      positions[i] = (Math.random() - 0.5) * 4000;
-    }
-    starsGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-    const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
-    const starField = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(starField);
-
-    // === 애니메이션 ===
     const animate = () => {
       controls.update();
-      starField.rotation.y += 0.0005; // 별 회전
       webglRenderer.render(scene, camera);
       labelRenderer.render(scene, camera);
       requestAnimationFrame(animate);
     };
     animate();
 
-    // === 반응형 ===
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -142,15 +137,44 @@ const GlobeViewer = () => {
 
   return (
     <div
-      ref={globeRef}
       style={{
         width: "100vw",
         height: "100vh",
         position: "relative",
-        backgroundColor: "black", // fallback
+        backgroundColor: "black",
         overflow: "hidden",
       }}
     >
+      <button
+        onClick={() => setShowStats(!showStats)}
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          zIndex: 20,
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid white",
+          padding: "8px 16px",
+          color: "white",
+          cursor: "pointer",
+          borderRadius: 8,
+        }}
+      >
+        📊 통계 보기
+      </button>
+
+      <div
+        ref={globeRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          pointerEvents: "auto",
+        }}
+      />
+
       {selectedCountry && (
         <CardOverlay
           country={selectedCountry.code}
@@ -158,6 +182,12 @@ const GlobeViewer = () => {
           onClose={() => setSelectedCountry(null)}
         />
       )}
+
+      <StatsModal
+        visible={showStats}
+        onClose={() => setShowStats(false)}
+        countryStats={countryStats}
+      />
     </div>
   );
 };
