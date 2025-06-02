@@ -7,6 +7,7 @@ import GlobeViewer from "./pages/GlobeViewer";
 import CardList from "./pages/CardList";
 import CardDetail from "./pages/CardDetail";
 import CardCreate from "./pages/CardCreate";
+import MyPage from "./pages/mypage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -44,6 +45,12 @@ function App() {
         <Route 
           path="/entries/:id" 
           element={isLoggedIn ? <CardDetail /> : <Navigate to="/home" />} 
+        />
+
+        {/* 마이페이지 */}
+        <Route 
+          path="/mypage" 
+          element={isLoggedIn ? <MyPage /> : <Navigate to="/home" />} 
         />
       </Routes>
     </Router>
