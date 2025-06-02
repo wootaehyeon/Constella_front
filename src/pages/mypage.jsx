@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CardList from "./timeCard"; // 카드 리스트 컴포넌트 (시간순 카드들)
 import StarsCanvas from "../components/StarsCanvas"; // 별자리 컴포넌트 (별자리 캔버스)
+import StatsModal from "../components/StatsModal";
 
 const MyPage = () => {
   const [mode, setMode] = useState("cards"); // "cards" or "stars"
