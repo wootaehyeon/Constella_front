@@ -10,7 +10,7 @@ import CardCreate from "./pages/CardCreate";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem("isLoggedIn") === "true";
+    return localStorage.getItem("isLoggedIn") === "false" ? false : true;
   });
 
   return (
