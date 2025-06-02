@@ -5,6 +5,7 @@ import { TrackballControls } from "three/examples/jsm/controls/TrackballControls
 import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
 import CardOverlay from "../components/CardOverlay";
 import StatsModal from "../components/StatsModal"; // 추가
+import { useNavigate } from "react-router-dom";
 
 const countryNameMap = {
   KOR: "대한민국", USA: "미국", FRA: "프랑스", JPN: "일본",
@@ -33,6 +34,7 @@ const GlobeViewer = () => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [showStats, setShowStats] = useState(false);
   const [countryStats, setCountryStats] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8080/api/diaries/stats")
@@ -161,6 +163,23 @@ const GlobeViewer = () => {
         }}
       >
         📊 통계 보기
+      </button>
+      <button
+        onClick={() => navigate("/mypage")}
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          zIndex: 20,
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid white",
+          padding: "8px 16px",
+          color: "white",
+          cursor: "pointer",
+          borderRadius: 8,
+        }}
+      >
+        🧑‍🚀 마이페이지
       </button>
 
       <div
