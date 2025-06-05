@@ -23,7 +23,7 @@ const countryNameMap = {
   MEX: "멕시코",
 };
 
-const CardOverlay = ({ country, onClose }) => {
+const CardOverlay = ({ country, onClose, latitude, longitude }) => {
   const [cards, setCards] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -220,6 +220,9 @@ const CardOverlay = ({ country, onClose }) => {
         {showCreate && (
           <CardCreateModal
             country={country}
+            countryName={countryNameMap[country] || country}
+            latitude={latitude}
+            longitude={longitude}
             onClose={() => setShowCreate(false)}
             onComplete={handleCardCreated}
           />

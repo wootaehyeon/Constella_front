@@ -76,7 +76,12 @@ const GlobeViewer = () => {
         el.innerHTML = markerSvg(label, d.color, d.size);
         el.style.cursor = "pointer";
         el.style.pointerEvents = "auto";
-        el.onclick = () => setSelectedCountry({ code: d.id, name: label });
+        el.onclick = () => setSelectedCountry({ 
+          code: d.id, 
+          name: label,
+          latitude: d.lat,
+          longitude: d.lng
+        });
         return el;
       })
       .htmlElementVisibilityModifier((el, isVisible) => {
@@ -233,6 +238,8 @@ const GlobeViewer = () => {
           <CardOverlay
             country={selectedCountry.code}
             countryName={selectedCountry.name}
+            latitude={selectedCountry.latitude}
+            longitude={selectedCountry.longitude}
             onClose={() => setSelectedCountry(null)}
           />
         )}
