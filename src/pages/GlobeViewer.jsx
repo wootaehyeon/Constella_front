@@ -4,37 +4,30 @@ import ThreeGlobe from "three-globe";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
 import CardOverlay from "../components/CardOverlay";
-import StatsModal from "../components/StatsModal"; // 추가
+import StatsModal from "../components/StatsModal";
 import { useNavigate } from "react-router-dom";
-
-const countryNameMap = {
-  KOR: "대한민국", USA: "미국", FRA: "프랑스", JPN: "일본",
-  CHN: "중국", GBR: "영국", DEU: "독일", ITA: "이탈리아",
-  ESP: "스페인", RUS: "러시아", BRA: "브라질", AUS: "호주",
-  IND: "인도", CAN: "캐나다", MEX: "멕시코",
-};
-
-const gData = [
-  { lat: 37.5665, lng: 126.978, size: 20, color: "red", id: "KOR" },
-  { lat: 35.6895, lng: 139.6917, size: 20, color: "white", id: "JPN" },
-  { lat: 39.9042, lng: 116.4074, size: 20, color: "gold", id: "CHN" },
-  { lat: 48.8566, lng: 2.3522, size: 20, color: "blue", id: "FRA" },
-  { lat: 51.5072, lng: -0.1276, size: 20, color: "navy", id: "GBR" },
-  { lat: 40.7128, lng: -74.006, size: 20, color: "green", id: "USA" },
-  { lat: 55.7558, lng: 37.6173, size: 20, color: "crimson", id: "RUS" },
-  { lat: -33.8688, lng: 151.2093, size: 20, color: "orange", id: "AUS" },
-  { lat: 52.52, lng: 13.405, size: 20, color: "black", id: "DEU" },
-  { lat: 41.9028, lng: 12.4964, size: 20, color: "tomato", id: "ITA" },
-  { lat: 19.4326, lng: -99.1332, size: 20, color: "lime", id: "MEX" },
-  { lat: -23.5505, lng: -46.6333, size: 20, color: "yellow", id: "BRA" },
-];
+import StarsCanvas from "../components/StarsCanvas";
+import CountryManager from "../components/CountryManager";
 
 const GlobeViewer = () => {
   const globeRef = useRef(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [showStats, setShowStats] = useState(false);
   const [countryStats, setCountryStats] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [showCountryManager, setShowCountryManager] = useState(false);
   const navigate = useNavigate();
+
+  // 나라 목록 API에서 받아오기
+  useEffect(() => {
+    fetch("http://localhost:8080/api/countries")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCountries(data);
+        else setCountries([]);
+      })
+      .catch(() => setCountries([]));
+  }, [showCountryManager]); // 나라 추가 후 새로고침
 
   useEffect(() => {
     fetch("http://localhost:8080/api/diaries/stats")
@@ -49,6 +42,16 @@ const GlobeViewer = () => {
   useEffect(() => {
     const container = globeRef.current;
     if (!container) return;
+
+    // gData를 countries에서 변환
+    const gData = Array.isArray(countries) ? countries.map(country => ({
+      lat: country.lat,
+      lng: country.lng,
+      size: 20,
+      color: country.color || "gold",
+      id: country.code || country.nameKo,
+      name: country.nameKo
+    })) : [];
 
     const markerSvg = (label, color, size = 30) => `
   <div style="display: flex; flex-direction: column; align-items: center;">
@@ -69,7 +72,7 @@ const GlobeViewer = () => {
       .htmlElementsData(gData)
       .htmlElement((d) => {
         const el = document.createElement("div");
-        const label = countryNameMap[d.id] || d.id;
+        const label = d.name || d.id;
         el.innerHTML = markerSvg(label, d.color, d.size);
         el.style.cursor = "pointer";
         el.style.pointerEvents = "auto";
@@ -135,7 +138,7 @@ const GlobeViewer = () => {
       window.removeEventListener("resize", handleResize);
       if (container) container.innerHTML = "";
     };
-  }, []);
+  }, [countries]);
 
   return (
     <div
@@ -147,66 +150,98 @@ const GlobeViewer = () => {
         overflow: "hidden",
       }}
     >
-      <button
-        onClick={() => setShowStats(!showStats)}
-        style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          zIndex: 20,
-          background: "rgba(255,255,255,0.1)",
-          border: "1px solid white",
-          padding: "8px 16px",
-          color: "white",
-          cursor: "pointer",
-          borderRadius: 8,
-        }}
-      >
-        📊 통계 보기
-      </button>
-      <button
-        onClick={() => navigate("/mypage")}
-        style={{
-          position: "absolute",
-          top: 20,
-          left: 20,
-          zIndex: 20,
-          background: "rgba(255,255,255,0.1)",
-          border: "1px solid white",
-          padding: "8px 16px",
-          color: "white",
-          cursor: "pointer",
-          borderRadius: 8,
-        }}
-      >
-        🧑‍🚀 마이페이지
-      </button>
-
-      <div
-        ref={globeRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          pointerEvents: "auto",
-        }}
-      />
-
-      {selectedCountry && (
-        <CardOverlay
-          country={selectedCountry.code}
-          countryName={selectedCountry.name}
-          onClose={() => setSelectedCountry(null)}
+      {/* 우주 배경 */}
+      <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0 }}>
+        <StarsCanvas />
+      </div>
+      {/* 컨텐츠 오버레이 */}
+      <div style={{ position: "relative", zIndex: 1, width: "100vw", height: "100vh" }}>
+        <button
+          onClick={() => setShowStats(!showStats)}
+          style={{
+            position: "absolute",
+            top: 20,
+            right: 20,
+            zIndex: 20,
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid white",
+            padding: "8px 16px",
+            color: "white",
+            cursor: "pointer",
+            borderRadius: 8,
+          }}
+        >
+          📊 통계 보기
+        </button>
+        <button
+          onClick={() => navigate("/mypage")}
+          style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            zIndex: 20,
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid white",
+            padding: "8px 16px",
+            color: "white",
+            cursor: "pointer",
+            borderRadius: 8,
+          }}
+        >
+          🧑‍🚀 마이페이지
+        </button>
+        <button
+          onClick={() => setShowCountryManager(true)}
+          style={{
+            position: "absolute",
+            top: 70,
+            right: 20,
+            zIndex: 20,
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid white",
+            padding: "8px 16px",
+            color: "white",
+            cursor: "pointer",
+            borderRadius: 8,
+          }}
+        >
+          ➕ 나라 추가
+        </button>
+        {showCountryManager && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.7)", zIndex: 1000,
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            <div style={{ background: "#222", padding: 30, borderRadius: 16, minWidth: 320, color: "white", position: "relative" }}>
+              <button onClick={() => setShowCountryManager(false)} style={{ position: "absolute", top: 10, right: 15, background: "transparent", color: "white", border: "none", fontSize: 20, cursor: "pointer" }}>✕</button>
+              <CountryManager />
+            </div>
+          </div>
+        )}
+        <div
+          ref={globeRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            pointerEvents: "auto",
+          }}
         />
-      )}
-
-      <StatsModal
-        visible={showStats}
-        onClose={() => setShowStats(false)}
-        countryStats={countryStats}
-      />
+        {selectedCountry && (
+          <CardOverlay
+            country={selectedCountry.code}
+            countryName={selectedCountry.name}
+            onClose={() => setSelectedCountry(null)}
+          />
+        )}
+        <StatsModal
+          visible={showStats}
+          onClose={() => setShowStats(false)}
+          countryStats={countryStats}
+        />
+      </div>
     </div>
   );
 };

@@ -46,11 +46,67 @@ const MyPage = () => {
           {mode === "cards" ? <CardList /> : <div style={{ width: "100%", height: "400px" }}></div>}
         </div>
         <div style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: 20 }}>
-          <button onClick={() => setMode("stars")} style={{ padding: "10px 20px", border: "1px solid red", background: "#fff" }}>
-            내 별자리 보기
+          <button
+            onClick={() => setMode("stars")}
+            style={{
+              padding: "12px 32px",
+              border: mode === "stars" ? "2px solid #ffd700" : "2px solid #fff",
+              background: mode === "stars" ? "rgba(30,30,60,0.95)" : "rgba(255,255,255,0.08)",
+              color: mode === "stars" ? "#ffd700" : "#fff",
+              fontWeight: 700,
+              fontSize: 18,
+              borderRadius: 30,
+              boxShadow: mode === "stars" ? "0 0 16px 2px #ffd70088" : "0 0 8px 1px #fff2",
+              cursor: "pointer",
+              transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
+              outline: "none",
+              position: "relative",
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.boxShadow = "0 0 24px 6px #ffd700cc, 0 0 8px 2px #fff6";
+              e.currentTarget.style.background = "rgba(40,40,80,0.98)";
+              e.currentTarget.style.color = "#fffbe6";
+              e.currentTarget.style.border = "2px solid #ffd700";
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.boxShadow = mode === "stars" ? "0 0 16px 2px #ffd70088" : "0 0 8px 1px #fff2";
+              e.currentTarget.style.background = mode === "stars" ? "rgba(30,30,60,0.95)" : "rgba(255,255,255,0.08)";
+              e.currentTarget.style.color = mode === "stars" ? "#ffd700" : "#fff";
+              e.currentTarget.style.border = mode === "stars" ? "2px solid #ffd700" : "2px solid #fff";
+            }}
+          >
+            ★ 내 별자리 보기
           </button>
-          <button onClick={() => setMode("cards")} style={{ padding: "10px 20px", border: "1px solid red", background: "#fff" }}>
-            모든 카드 보기
+          <button
+            onClick={() => setMode("cards")}
+            style={{
+              padding: "12px 32px",
+              border: mode === "cards" ? "2px solid #00eaff" : "2px solid #fff",
+              background: mode === "cards" ? "rgba(10,30,60,0.95)" : "rgba(255,255,255,0.08)",
+              color: mode === "cards" ? "#00eaff" : "#fff",
+              fontWeight: 700,
+              fontSize: 18,
+              borderRadius: 30,
+              boxShadow: mode === "cards" ? "0 0 16px 2px #00eaff88" : "0 0 8px 1px #fff2",
+              cursor: "pointer",
+              transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
+              outline: "none",
+              position: "relative",
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.boxShadow = "0 0 24px 6px #00eaffcc, 0 0 8px 2px #fff6";
+              e.currentTarget.style.background = "rgba(20,40,80,0.98)";
+              e.currentTarget.style.color = "#e0f7ff";
+              e.currentTarget.style.border = "2px solid #00eaff";
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.boxShadow = mode === "cards" ? "0 0 16px 2px #00eaff88" : "0 0 8px 1px #fff2";
+              e.currentTarget.style.background = mode === "cards" ? "rgba(10,30,60,0.95)" : "rgba(255,255,255,0.08)";
+              e.currentTarget.style.color = mode === "cards" ? "#00eaff" : "#fff";
+              e.currentTarget.style.border = mode === "cards" ? "2px solid #00eaff" : "2px solid #fff";
+            }}
+          >
+            ✦ 모든 카드 보기
           </button>
         </div>
       </div>

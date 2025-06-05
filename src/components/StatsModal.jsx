@@ -5,6 +5,7 @@ import "chart.js/auto";
 const StatsModal = ({ visible, onClose }) => {
   const [summary, setSummary] = useState(null);
   const [countryStats, setCountryStats] = useState([]);
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     if (!visible) return;
@@ -26,7 +27,15 @@ const StatsModal = ({ visible, onClose }) => {
         }
       })
       .catch(() => setCountryStats([]));
-  }, [visible]);
+
+    fetch("http://localhost:8080/api/countries")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCountries(data);
+        else setCountries([]);
+      })
+      .catch(() => setCountries([]));
+  }, []);
 
   if (!visible) return null;
 
@@ -50,6 +59,15 @@ const StatsModal = ({ visible, onClose }) => {
       }
     }
   };
+
+  const gData = Array.isArray(countries) ? countries.map(country => ({
+    lat: country.lat,
+    lng: country.lng,
+    size: 20,
+    color: country.color || "gold",
+    id: country.code || country.name,
+    name: country.name
+  })) : [];
 
   return (
     <div style={{
@@ -89,6 +107,12 @@ const StatsModal = ({ visible, onClose }) => {
             <Bar data={chartData} options={chartOptions} />
           )}
         </div>
+
+        <ul>
+          {Array.isArray(countries) && countries.map(country => (
+            <li key={country.id || country.name}>{country.name}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );
