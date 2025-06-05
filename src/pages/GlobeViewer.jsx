@@ -30,7 +30,7 @@ const GlobeViewer = () => {
   }, [showCountryManager]); // 나라 추가 후 새로고침
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/diaries/stats")
+    fetch("http://localhost:8080/api/stats/by-country")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setCountryStats(data);
