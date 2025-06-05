@@ -35,16 +35,19 @@ const StatsModal = ({ visible, onClose }) => {
         else setCountries([]);
       })
       .catch(() => setCountries([]));
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
+  // countryName, count가 유효한 데이터만 필터링
+  const filteredStats = countryStats.filter(item => item.countryName && item.count != null);
+
   const chartData = {
-    labels: countryStats.map((item) => item.countryName),
+    labels: filteredStats.map((item) => item.countryName),
     datasets: [
       {
         label: "작성된 일기 수",
-        data: countryStats.map((item) => item.count),
+        data: filteredStats.map((item) => item.count),
         backgroundColor: "rgba(255, 215, 0, 0.6)",
       },
     ],
@@ -52,9 +55,17 @@ const StatsModal = ({ visible, onClose }) => {
 
   const chartOptions = {
     scales: {
+      x: {
+        ticks: {
+          maxRotation: 60,
+          minRotation: 45,
+          maxTicksLimit: 10,
+          autoSkip: true,
+        }
+      },
       y: {
         beginAtZero: true,
-        suggestedMax: Math.max(...countryStats.map(item => item.count), 5),
+        suggestedMax: Math.max(...filteredStats.map(item => item.count), 5),
         ticks: { stepSize: 1 }
       }
     }
@@ -99,7 +110,7 @@ const StatsModal = ({ visible, onClose }) => {
         )}
 
         <div style={{ background: "#222", padding: 20, borderRadius: 12 }}>
-          {countryStats.length === 0 ? (
+          {filteredStats.length === 0 ? (
             <div style={{ color: "#aaa", textAlign: "center", padding: 40 }}>
               표시할 통계 데이터가 없습니다.
             </div>
