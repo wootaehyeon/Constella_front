@@ -250,29 +250,109 @@ const handleRegister = async () => {
       />
 
       <div style={{ position: "fixed", top: 20, right: 20, color: "white", fontWeight: "bold", cursor: "pointer", fontSize: "1.1rem", userSelect: "none", zIndex: 10, display: "flex", gap: "15px" }}>
-        <span onClick={() => setShowLoginBox(!showLoginBox)}>로그인</span>
-        <span onClick={() => setShowRegisterBox(!showRegisterBox)}>회원가입</span>
+        <span onClick={() => { setShowLoginBox(true); setShowRegisterBox(false); }}>로그인</span>
+        <span onClick={() => { setShowRegisterBox(true); setShowLoginBox(false); }}>회원가입</span>
       </div>
 
       {showLoginBox && (
-        <div style={{ position: "fixed", top: 70, right: 20, width: 280, padding: "20px", backgroundColor: "rgba(0, 0, 30, 0.9)", color: "white", borderRadius: "12px", boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)", zIndex: 99 }}>
-          <h3 style={{ marginTop: 0 }}>로그인</h3>
-          <label htmlFor="login-id" style={{ fontSize: 14 }}>아이디</label>
-          <input id="login-id" type="text" placeholder=" 사용자명" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
-          <label htmlFor="login-password" style={{ fontSize: 14 }}>비밀번호</label>
-          <input id="login-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
-          <button onClick={handleLogin} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#1e90ff", color: "white", fontWeight: "bold", cursor: "pointer" }}>로그인</button>
+        <div style={{
+          position: "fixed", top: 70, right: 20, width: 340, padding: "36px 28px",
+          background: "rgba(20, 22, 40, 0.98)",
+          color: "white",
+          borderRadius: "18px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+          zIndex: 99,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          border: "1.5px solid #22263a",
+          alignItems: "center"
+        }}>
+          <button
+            onClick={() => setShowLoginBox(false)}
+            style={{
+              position: "absolute", top: 12, right: 16, background: "transparent",
+              color: "#aaa", border: "none", fontSize: 22, cursor: "pointer"
+            }}
+            aria-label="닫기"
+          >✕</button>
+          <h2 style={{ margin: 0, marginBottom: 10, fontWeight: 700, fontSize: 22, letterSpacing: 1 }}>로그인</h2>
+          <label htmlFor="login-id" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>아이디</label>
+          <input id="login-id" type="text" placeholder="사용자명"
+            style={{
+              width: "90%", padding: "12px", marginBottom: "10px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <label htmlFor="login-password" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>비밀번호</label>
+          <input id="login-password" type="password" placeholder="비밀번호 입력"
+            style={{
+              width: "90%", padding: "12px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <button onClick={handleLogin}
+            style={{
+              width: "90%", marginTop: "18px", padding: "13px",
+              borderRadius: "8px", border: "none",
+              background: "linear-gradient(90deg, #1e90ff 60%, #6dd5fa 100%)",
+              color: "white", fontWeight: "bold", fontSize: 17, cursor: "pointer",
+              boxShadow: "0 2px 8px #1e90ff44", transition: "background 0.2s"
+            }}
+            onMouseOver={e => e.currentTarget.style.background = "linear-gradient(90deg, #6dd5fa 0%, #1e90ff 100%)"}
+            onMouseOut={e => e.currentTarget.style.background = "linear-gradient(90deg, #1e90ff 60%, #6dd5fa 100%)"}
+          >로그인</button>
         </div>
       )}
 
       {showRegisterBox && (
-        <div style={{ position: "fixed", top: 70, right: 320, width: 280, padding: "20px", backgroundColor: "rgba(0, 0, 30, 0.9)", color: "white", borderRadius: "12px", boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)", zIndex: 99 }}>
-          <h3 style={{ marginTop: 0 }}>회원가입</h3>
-          <label htmlFor="register-id" style={{ fontSize: 14 }}>아이디</label>
-          <input id="register-id" type="text" placeholder="아이디 입력" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
-          <label htmlFor="register-password" style={{ fontSize: 14 }}>비밀번호</label>
-          <input id="register-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
-          <button onClick={handleRegister} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#32cd32", color: "white", fontWeight: "bold", cursor: "pointer" }}>회원가입</button>
+        <div style={{
+          position: "fixed", top: 70, right: 20, width: 340, padding: "36px 28px",
+          background: "rgba(20, 22, 40, 0.98)",
+          color: "white",
+          borderRadius: "18px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+          zIndex: 99,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          border: "1.5px solid #22263a",
+          alignItems: "center"
+        }}>
+          <button
+            onClick={() => setShowRegisterBox(false)}
+            style={{
+              position: "absolute", top: 12, right: 16, background: "transparent",
+              color: "#aaa", border: "none", fontSize: 22, cursor: "pointer"
+            }}
+            aria-label="닫기"
+          >✕</button>
+          <h2 style={{ margin: 0, marginBottom: 10, fontWeight: 700, fontSize: 22, letterSpacing: 1 }}>회원가입</h2>
+          <label htmlFor="register-id" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>아이디</label>
+          <input id="register-id" type="text" placeholder="아이디 입력"
+            style={{
+              width: "90%", padding: "12px", marginBottom: "10px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <label htmlFor="register-password" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>비밀번호</label>
+          <input id="register-password" type="password" placeholder="비밀번호 입력"
+            style={{
+              width: "90%", padding: "12px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <button onClick={handleRegister}
+            style={{
+              width: "90%", marginTop: "18px", padding: "13px",
+              borderRadius: "8px", border: "none",
+              background: "linear-gradient(90deg, #32cd32 60%, #a8ff78 100%)",
+              color: "white", fontWeight: "bold", fontSize: 17, cursor: "pointer",
+              boxShadow: "0 2px 8px #32cd3244", transition: "background 0.2s"
+            }}
+            onMouseOver={e => e.currentTarget.style.background = "linear-gradient(90deg, #a8ff78 0%, #32cd32 100%)"}
+            onMouseOut={e => e.currentTarget.style.background = "linear-gradient(90deg, #32cd32 60%, #a8ff78 100%)"}
+          >회원가입</button>
         </div>
       )}
 
