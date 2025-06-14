@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import StarsCanvas from "../components/StarsCanvas";
 import CountryManager from "../components/CountryManager";
 import Constellation2DMinimap from "../components/Constellation2DMinimap";
+import '../styles/TopBar.css'; 
 
 const GlobeViewer = () => {
   const globeRef = useRef(null);
@@ -882,101 +883,159 @@ const GlobeViewer = () => {
       />
       {/* 컨텐츠 오버레이 */}
       <div style={{ position: "relative", zIndex: 1, width: "100vw", height: "100vh" }}>
-        {/* 💫 별자리 저장 버튼 */}
-        <button
-          onClick={saveConstellation}
-          style={{
-            position: "absolute",
-            top: 20,
-            left: 20,
-            zIndex: 20,
-            background: "#222",
-            border: "none",
-            padding: "8px 16px",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: 8,
-          }}
-        >
-          💫 별자리 저장
-        </button>
+        {/* New Top Bar */}
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          background: "rgba(0,0,0,0.6)",
+          padding: "20px 40px", // 상하좌우 패딩 유지
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          zIndex: 30,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+          backdropFilter: "blur(5px)",
+        }}>
+          {/* Left: Constella Logo (이미지) */}
+          <div
+            style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', cursor: 'pointer' }}
+            onClick={() => navigate("/globe")} // 로고 클릭 시 홈으로 이동 (선택 사항)
+          >
+            <img
+              src="/images/constella_logo.png" // 여기에 실제 이미지 경로가 올바르게 입력되었는지 확인해주세요!
+              alt="Constella Logo"
+              style={{
+                height: '90px',
+                width: '90px', // 로고 이미지 높이를 더 크게 조정
+                marginRight: '20px', // 이미지와 버튼 그룹 사이의 간격 조정
+              }}
+            />
+          </div>
 
-        {/* 🧑‍🚀 마이페이지 버튼 (위치 조정) */}
-        <button
-          onClick={() => navigate("/mypage")}
-          style={{
-            position: "absolute",
-            top: 70,
-            left: 20,
-            zIndex: 20,
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid white",
-            padding: "8px 16px",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: 8,
-          }}
-        >
-          🧑‍🚀 마이페이지
-        </button>
+          {/* Right: All Buttons Group */}
+          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}> {/* 버튼 간격 유지 */}
+            <button
+              onClick={saveConstellation}
+              className="top-bar-button"
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "12px 25px",
+                color: "#FFD700",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              별자리 저장
+            </button>
 
-        {/* ⭐️ 별자리 끄기/보기 버튼 (위치 조정) */}
-        <button
-          onClick={handleShowConstellation}
-          style={{
-            position: "absolute",
-            top: 120,
-            left: 20,
-            zIndex: 20,
-            background: showConstellation ? "#FFD700" : "rgba(255,255,255,0.1)",
-            border: showConstellation ? "2px solid #FFD700" : "1px solid white",
-            padding: "8px 16px",
-            color: showConstellation ? "#222" : "white",
-            cursor: "pointer",
-            borderRadius: 8,
-            fontWeight: 700,
-            boxShadow: showConstellation ? "0 0 16px 2px #ffd70088" : undefined,
-          }}
-        >
-          ⭐️ 별자리 {showConstellation ? "끄기" : "보기"}
-        </button>
+            <button
+              onClick={handleShowConstellation}
+              className="top-bar-button"
+              style={{
+                background: showConstellation ? "rgba(255,215,0,0.2)" : "transparent",
+                border: showConstellation ? "1px solid #FFD700" : "none",
+                padding: "12px 25px",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 700,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              별자리 {showConstellation ? "끄기" : "보기"}
+            </button>
 
-        {/* 📊 통계 보기 버튼 (위치 동일) */}
-        <button
-          onClick={() => setShowStats(!showStats)}
-          style={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-            zIndex: 20,
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid white",
-            padding: "8px 16px",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: 8,
-          }}
-        >
-          📊 통계 보기
-        </button>
-        {/* ➕ 나라 추가 버튼 (위치 동일) */}
-        <button
-          onClick={() => setShowCountryManager(true)}
-          style={{
-            position: "absolute",
-            top: 70,
-            right: 20,
-            zIndex: 20,
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid white",
-            padding: "8px 16px",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: 8,
-          }}
-        >
-          ➕ 나라 추가
-        </button>
+            <button
+              onClick={() => setShowStats(!showStats)}
+              className="top-bar-button"
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "12px 25px",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              통계 보기
+            </button>
+
+            <button
+              onClick={() => setShowCountryManager(true)}
+              className="top-bar-button"
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "12px 25px",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              나라 추가
+            </button>
+            
+            <button
+              onClick={() => navigate("/mypage")}
+              className="top-bar-button"
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "12px 25px",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              마이페이지
+            </button>
+
+            <button
+              onClick={() => {
+                localStorage.removeItem('userId');
+                navigate('/login');
+              }}
+              className="top-bar-button"
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "12px 25px",
+                color: "white",
+                cursor: "pointer",
+                borderRadius: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                whiteSpace: 'nowrap',
+              }}
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+
+        {/* Existing showCountryManager div (moved outside the new top bar) */}
         {showCountryManager && (
           <div style={{
             position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.7)", zIndex: 1000,
@@ -988,13 +1047,15 @@ const GlobeViewer = () => {
             </div>
           </div>
         )}
+
+        {/* Globe container - adjusted top position */}
         <div
           ref={globeRef}
           style={{
             width: "100%",
-            height: "100%",
+            height: "calc(100% - 70px)", // <-- 고정 상단바 높이만큼 제외
             position: "absolute",
-            top: 0,
+            top: "70px",
             left: 0,
             pointerEvents: "auto",
           }}
