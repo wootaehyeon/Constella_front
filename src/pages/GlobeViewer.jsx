@@ -1014,7 +1014,7 @@ const GlobeViewer = () => {
             <button
               onClick={() => {
                 localStorage.removeItem('userId');
-                navigate('/login');
+                navigate('/');
               }}
               className="top-bar-button"
               style={{
