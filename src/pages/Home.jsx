@@ -185,22 +185,31 @@ export default function Home({ setIsLoggedIn }) {
     if (response.ok) {
       const data = await response.json();
       console.log("로그인 성공:", data);
-
+      // userId 저장 (id로!)
+      if (data.id) localStorage.setItem("userId", data.id);
       // JWT 토큰이 있다면 저장 (명세서에는 없지만 추가 가능)
       // localStorage.setItem("token", data.token);
-
       setIsLoggedIn(true);
       localStorage.setItem("isLoggedIn", "true");
       alert(data.message); // "로그인 성공"
       navigate("/globe");
     } else {
-      const errorData = await response.json();
-      console.error("로그인 실패:", errorData);
-      alert("로그인 실패: " + (errorData.message || "알 수 없는 오류"));
+      // response.ok가 false인 경우, 에러 응답을 텍스트로 먼저 받음
+      const errorText = await response.text();
+      let errorMessage = "로그인 실패: 알 수 없는 오류";
+      try {
+        const errorData = JSON.parse(errorText); // 텍스트를 JSON으로 파싱 시도
+        errorMessage = "로그인 실패: " + (errorData.message || "알 수 없는 오류");
+      } catch (e) {
+        // JSON 파싱 실패 시, 텍스트 응답 자체를 메시지로 사용
+        errorMessage = "로그인 실패: " + (errorText || "알 수 없는 오류");
+      }
+      console.error("로그인 실패:", response.status, errorText);
+      alert(errorMessage);
     }
   } catch (error) {
     console.error("에러 발생:", error);
-    alert("서버 오류 발생");
+    alert("서버 연결 오류 또는 기타 에러 발생");
   }
 };
 const handleRegister = async () => {
@@ -219,19 +228,18 @@ const handleRegister = async () => {
       }),
     });
 
-    if (response.status === 200) {
-      const data = await response.json();
-      console.log("회원가입 성공:", data);
-      alert(data.message); // "회원가입 성공"
+    if (response.ok) {
+      console.log("회원가입 성공");
+      alert("회원가입에 성공했습니다!");
       setShowRegisterBox(false);
     } else {
       const errorData = await response.json();
       console.error("회원가입 실패:", errorData);
-      alert("회원가입 실패: " + (errorData.message || "알 수 없는 오류"));
+      alert("회원가입 실패: " + (errorData.message || "알 수 없는 오류가 발생했습니다."));
     }
   } catch (error) {
-    console.error("에러 발생:", error);
-    alert("서버 오류 발생");
+    console.error("회원가입 중 에러 발생:", error);
+    alert("회원가입 중 서버 오류가 발생했습니다.");
   }
 };
 
@@ -250,29 +258,109 @@ const handleRegister = async () => {
       />
 
       <div style={{ position: "fixed", top: 20, right: 20, color: "white", fontWeight: "bold", cursor: "pointer", fontSize: "1.1rem", userSelect: "none", zIndex: 10, display: "flex", gap: "15px" }}>
-        <span onClick={() => setShowLoginBox(!showLoginBox)}>로그인</span>
-        <span onClick={() => setShowRegisterBox(!showRegisterBox)}>회원가입</span>
+        <span onClick={() => { setShowLoginBox(true); setShowRegisterBox(false); }}>로그인</span>
+        <span onClick={() => { setShowRegisterBox(true); setShowLoginBox(false); }}>회원가입</span>
       </div>
 
       {showLoginBox && (
-        <div style={{ position: "fixed", top: 70, right: 20, width: 280, padding: "20px", backgroundColor: "rgba(0, 0, 30, 0.9)", color: "white", borderRadius: "12px", boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)", zIndex: 99 }}>
-          <h3 style={{ marginTop: 0 }}>로그인</h3>
-          <label htmlFor="login-id" style={{ fontSize: 14 }}>아이디</label>
-          <input id="login-id" type="text" placeholder=" 사용자명" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
-          <label htmlFor="login-password" style={{ fontSize: 14 }}>비밀번호</label>
-          <input id="login-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
-          <button onClick={handleLogin} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#1e90ff", color: "white", fontWeight: "bold", cursor: "pointer" }}>로그인</button>
+        <div style={{
+          position: "fixed", top: 70, right: 20, width: 340, padding: "36px 28px",
+          background: "rgba(20, 22, 40, 0.98)",
+          color: "white",
+          borderRadius: "18px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+          zIndex: 99,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          border: "1.5px solid #22263a",
+          alignItems: "center"
+        }}>
+          <button
+            onClick={() => setShowLoginBox(false)}
+            style={{
+              position: "absolute", top: 12, right: 16, background: "transparent",
+              color: "#aaa", border: "none", fontSize: 22, cursor: "pointer"
+            }}
+            aria-label="닫기"
+          >✕</button>
+          <h2 style={{ margin: 0, marginBottom: 10, fontWeight: 700, fontSize: 22, letterSpacing: 1 }}>로그인</h2>
+          <label htmlFor="login-id" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>아이디</label>
+          <input id="login-id" type="text" placeholder="사용자명"
+            style={{
+              width: "90%", padding: "12px", marginBottom: "10px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <label htmlFor="login-password" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>비밀번호</label>
+          <input id="login-password" type="password" placeholder="비밀번호 입력"
+            style={{
+              width: "90%", padding: "12px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <button onClick={handleLogin}
+            style={{
+              width: "90%", marginTop: "18px", padding: "13px",
+              borderRadius: "8px", border: "none",
+              background: "linear-gradient(90deg, #1e90ff 60%, #6dd5fa 100%)",
+              color: "white", fontWeight: "bold", fontSize: 17, cursor: "pointer",
+              boxShadow: "0 2px 8px #1e90ff44", transition: "background 0.2s"
+            }}
+            onMouseOver={e => e.currentTarget.style.background = "linear-gradient(90deg, #6dd5fa 0%, #1e90ff 100%)"}
+            onMouseOut={e => e.currentTarget.style.background = "linear-gradient(90deg, #1e90ff 60%, #6dd5fa 100%)"}
+          >로그인</button>
         </div>
       )}
 
       {showRegisterBox && (
-        <div style={{ position: "fixed", top: 70, right: 320, width: 280, padding: "20px", backgroundColor: "rgba(0, 0, 30, 0.9)", color: "white", borderRadius: "12px", boxShadow: "0 0 15px rgba(255, 255, 255, 0.2)", zIndex: 99 }}>
-          <h3 style={{ marginTop: 0 }}>회원가입</h3>
-          <label htmlFor="register-id" style={{ fontSize: 14 }}>아이디</label>
-          <input id="register-id" type="text" placeholder="아이디 입력" style={{ width: "100%", padding: "8px", marginBottom: "10px", borderRadius: "6px", border: "none" }} />
-          <label htmlFor="register-password" style={{ fontSize: 14 }}>비밀번호</label>
-          <input id="register-password" type="password" placeholder="비밀번호 입력" style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "none" }} />
-          <button onClick={handleRegister} style={{ width: "100%", marginTop: "15px", padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#32cd32", color: "white", fontWeight: "bold", cursor: "pointer" }}>회원가입</button>
+        <div style={{
+          position: "fixed", top: 70, right: 20, width: 340, padding: "36px 28px",
+          background: "rgba(20, 22, 40, 0.98)",
+          color: "white",
+          borderRadius: "18px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+          zIndex: 99,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          border: "1.5px solid #22263a",
+          alignItems: "center"
+        }}>
+          <button
+            onClick={() => setShowRegisterBox(false)}
+            style={{
+              position: "absolute", top: 12, right: 16, background: "transparent",
+              color: "#aaa", border: "none", fontSize: 22, cursor: "pointer"
+            }}
+            aria-label="닫기"
+          >✕</button>
+          <h2 style={{ margin: 0, marginBottom: 10, fontWeight: 700, fontSize: 22, letterSpacing: 1 }}>회원가입</h2>
+          <label htmlFor="register-id" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>아이디</label>
+          <input id="register-id" type="text" placeholder="아이디 입력"
+            style={{
+              width: "90%", padding: "12px", marginBottom: "10px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <label htmlFor="register-password" style={{ fontSize: 15, marginBottom: 4, alignSelf: "flex-start" }}>비밀번호</label>
+          <input id="register-password" type="password" placeholder="비밀번호 입력"
+            style={{
+              width: "90%", padding: "12px",
+              borderRadius: "8px", border: "1.5px solid #2a2d4a",
+              background: "#181a2b", color: "white", fontSize: 16, outline: "none"
+            }} />
+          <button onClick={handleRegister}
+            style={{
+              width: "90%", marginTop: "18px", padding: "13px",
+              borderRadius: "8px", border: "none",
+              background: "linear-gradient(90deg, #32cd32 60%, #a8ff78 100%)",
+              color: "white", fontWeight: "bold", fontSize: 17, cursor: "pointer",
+              boxShadow: "0 2px 8px #32cd3244", transition: "background 0.2s"
+            }}
+            onMouseOver={e => e.currentTarget.style.background = "linear-gradient(90deg, #a8ff78 0%, #32cd32 100%)"}
+            onMouseOut={e => e.currentTarget.style.background = "linear-gradient(90deg, #32cd32 60%, #a8ff78 100%)"}
+          >회원가입</button>
         </div>
       )}
 
