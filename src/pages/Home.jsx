@@ -185,22 +185,31 @@ export default function Home({ setIsLoggedIn }) {
     if (response.ok) {
       const data = await response.json();
       console.log("로그인 성공:", data);
-
+      // userId 저장 (id로!)
+      if (data.id) localStorage.setItem("userId", data.id);
       // JWT 토큰이 있다면 저장 (명세서에는 없지만 추가 가능)
       // localStorage.setItem("token", data.token);
-
       setIsLoggedIn(true);
       localStorage.setItem("isLoggedIn", "true");
       alert(data.message); // "로그인 성공"
       navigate("/globe");
     } else {
-      const errorData = await response.json();
-      console.error("로그인 실패:", errorData);
-      alert("로그인 실패: " + (errorData.message || "알 수 없는 오류"));
+      // response.ok가 false인 경우, 에러 응답을 텍스트로 먼저 받음
+      const errorText = await response.text();
+      let errorMessage = "로그인 실패: 알 수 없는 오류";
+      try {
+        const errorData = JSON.parse(errorText); // 텍스트를 JSON으로 파싱 시도
+        errorMessage = "로그인 실패: " + (errorData.message || "알 수 없는 오류");
+      } catch (e) {
+        // JSON 파싱 실패 시, 텍스트 응답 자체를 메시지로 사용
+        errorMessage = "로그인 실패: " + (errorText || "알 수 없는 오류");
+      }
+      console.error("로그인 실패:", response.status, errorText);
+      alert(errorMessage);
     }
   } catch (error) {
     console.error("에러 발생:", error);
-    alert("서버 오류 발생");
+    alert("서버 연결 오류 또는 기타 에러 발생");
   }
 };
 const handleRegister = async () => {
@@ -219,19 +228,18 @@ const handleRegister = async () => {
       }),
     });
 
-    if (response.status === 200) {
-      const data = await response.json();
-      console.log("회원가입 성공:", data);
-      alert(data.message); // "회원가입 성공"
+    if (response.ok) {
+      console.log("회원가입 성공");
+      alert("회원가입에 성공했습니다!");
       setShowRegisterBox(false);
     } else {
       const errorData = await response.json();
       console.error("회원가입 실패:", errorData);
-      alert("회원가입 실패: " + (errorData.message || "알 수 없는 오류"));
+      alert("회원가입 실패: " + (errorData.message || "알 수 없는 오류가 발생했습니다."));
     }
   } catch (error) {
-    console.error("에러 발생:", error);
-    alert("서버 오류 발생");
+    console.error("회원가입 중 에러 발생:", error);
+    alert("회원가입 중 서버 오류가 발생했습니다.");
   }
 };
 
