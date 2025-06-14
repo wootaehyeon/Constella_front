@@ -93,6 +93,8 @@ const Meteors = () => {
 
 // 🎬 전체 캔버스 구성
 const StarsCanvas = () => {
+  console.log(localStorage.getItem('userId'));
+
   return (
     <Canvas
       style={{

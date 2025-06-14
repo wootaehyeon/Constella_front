@@ -7,11 +7,17 @@ const CardCreateModal = ({ country, onClose, onComplete }) => {
   const [images, setImages] = useState([]);
 
   const handleSubmit = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
     const formData = new FormData();
     formData.append("title", title);
     formData.append("contents", content);
     formData.append("locationCode", country);
     formData.append("date", date || new Date().toISOString().split("T")[0]);
+    formData.append("userId", userId);
 
     images.forEach((file) => {
       formData.append("images", file);

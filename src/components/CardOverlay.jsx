@@ -29,7 +29,12 @@ const CardOverlay = ({ country, onClose }) => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   const refetchCards = () => {
-    fetch(`http://localhost:8080/api/diaries/merge/${country}`)
+    const userId = localStorage.getItem('userId');
+    if (!userId || !country) {
+      setCards([]);
+      return;
+    }
+    fetch(`http://localhost:8080/api/diaries/merge/${userId}/${country}`)
       .then((res) => res.json())
       .then((data) => setCards(Array.isArray(data) ? data : []))
       .catch(() => setCards([]));
@@ -91,11 +96,37 @@ const CardOverlay = ({ country, onClose }) => {
           <h2>{selectedCard.mergedTitle}</h2>
           <p>{selectedCard.mergedContent}</p>
           {selectedCard.imageUrls?.length > 0 && (
-            <img
-              src={`http://localhost:8080${selectedCard.imageUrls[0]}`}
-              alt="thumbnail"
-              style={{ width: "100%", marginTop: 20, borderRadius: 8 }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <img
+                src={`http://localhost:8080${selectedCard.imageUrls[0]}`}
+                alt="thumbnail"
+                style={{ width: "100%", marginTop: 20, borderRadius: 8 }}
+              />
+              <button
+                onClick={() => setSelectedCard(null)}
+                style={{
+                  position: "absolute",
+                  top: 24,
+                  right: 24,
+                  zIndex: 100,
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  fontSize: 32,
+                  border: "none",
+                  cursor: "pointer",
+                  borderRadius: "50%",
+                  width: 44,
+                  height: 44,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 2px 8px #000a"
+                }}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
           )}
         </div>
       </div>
